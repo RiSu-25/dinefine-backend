@@ -1,4 +1,7 @@
 import { PrismaClient } from "@prisma/client";
+import cloudinary from "../config/cloudinary.js";   // <--- added
+import fs from "fs";
+
 const prisma = new PrismaClient();
 
 // GET ALL REVIEWS
@@ -18,7 +21,17 @@ export const addReview = async (req, res) => {
   try {
     const { name, rating, text } = req.body;
 
-    const img = req.file ? req.file.filename : null;
+    let img = null;
+
+    if (req.file) {
+      const upload = await cloudinary.uploader.upload(req.file.path, {
+        folder: "dinefine/reviews",
+      });
+
+      img = upload.secure_url;
+
+      fs.unlinkSync(req.file.path); // remove temp file
+    }
 
     const newReview = await prisma.review.create({
       data: {
@@ -36,7 +49,6 @@ export const addReview = async (req, res) => {
     res.status(500).json({ error: "Error adding review" });
   }
 };
-
 
 // DELETE REVIEW
 export const deleteReview = async (req, res) => {

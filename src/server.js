@@ -19,21 +19,20 @@ const __dirname = path.dirname(__filename);
 app.use(cors());
 app.use(express.json());
 
-// Serve uploaded images
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// Serve uploads folder (multer temporary files)
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 // Test route
 app.get("/", (req, res) => {
   res.send("✅ DineFine Backend API is Running!");
 });
 
-// Register routes
+// API routes
 app.use("/api/menu", menuRoutes);
 app.use("/api/blog", blogRoutes);
 app.use("/api/reservations", reservationRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/contacts", contactRoutes);
-
 
 // Server
 const PORT = process.env.PORT || 5000;

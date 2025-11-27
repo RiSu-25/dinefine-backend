@@ -1,23 +1,12 @@
+// routes/blogRoutes.js
 import express from "express";
 import multer from "multer";
-import {
-  createBlog,
-  getBlogs,
-  getBlogById,
-  updateBlog,
-  deleteBlog,
-} from "../controllers/blogController.js";
+import { createBlog, getBlogs, getBlogById, updateBlog, deleteBlog } from "../controllers/blogController.js";
 
 const router = express.Router();
 
-const storage = multer.diskStorage({
-  destination: "uploads/",
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
-  },
-});
-
-const upload = multer({ storage });
+// Multer config for temporary storage
+const upload = multer({ dest: "uploads/" });
 
 router.post("/", upload.single("image"), createBlog);
 router.get("/", getBlogs);

@@ -1,4 +1,6 @@
 import { PrismaClient } from "@prisma/client";
+import cloudinary from "../config/cloudinary.js"; // <--- added
+import fs from "fs"; 
 const prisma = new PrismaClient();
 
 // GET ALL MENU ITEMS
@@ -17,7 +19,19 @@ export const addMenuItem = async (req, res) => {
   try {
     const { name, description, price, category, status, isPopular } = req.body;
 
-    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+    let imageUrl = null;
+
+    // Upload image to Cloudinary if exists
+    if (req.file) {
+      const upload = await cloudinary.uploader.upload(req.file.path, {
+        folder: "dinefine/menu",
+      });
+
+      imageUrl = upload.secure_url;
+
+      // remove file from local uploads folder
+      fs.unlinkSync(req.file.path);
+    }
 
     const newItem = await prisma.menuItem.create({
       data: {
@@ -44,9 +58,17 @@ export const updateMenuItem = async (req, res) => {
     const { id } = req.params;
     const { name, description, price, category, status, isPopular } = req.body;
 
-    const imageUrl = req.file
-      ? `/uploads/${req.file.filename}`
-      : req.body.imageUrl;
+    let imageUrl = req.body.imageUrl; // keep old URL
+
+    if (req.file) {
+      const upload = await cloudinary.uploader.upload(req.file.path, {
+        folder: "dinefine/menu",
+      });
+
+      imageUrl = upload.secure_url;
+
+      fs.unlinkSync(req.file.path);
+    }
 
     const updated = await prisma.menuItem.update({
       where: { id: Number(id) },
