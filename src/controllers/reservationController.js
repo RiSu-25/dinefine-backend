@@ -38,20 +38,43 @@ export const getReservations = async (req, res) => {
 };
 
 // UPDATE reservation (status or details)
+// export const updateReservation = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+
+//     const updated = await prisma.reservation.update({
+//       where: { id: Number(id) },
+//       data: req.body,
+//     });
+
+//     res.json(updated);
+//   } catch (error) {
+//     res.status(500).json({ error: "Failed to update reservation" });
+//   }
+// };
 export const updateReservation = async (req, res) => {
   try {
     const { id } = req.params;
+    const { date, time, guests, status, ...rest } = req.body;
 
     const updated = await prisma.reservation.update({
       where: { id: Number(id) },
-      data: req.body,
+      data: {
+        ...rest,
+        guests: Number(guests),
+        status, // ✅ explicitly included
+        date: new Date(`${date}T${time}:00`), // ✅ valid DateTime
+        time,
+      },
     });
 
     res.json(updated);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "Failed to update reservation" });
   }
 };
+
 
 // DELETE reservation
 export const deleteReservation = async (req, res) => {

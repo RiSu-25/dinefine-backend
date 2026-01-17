@@ -40,11 +40,11 @@ model Reservation {
   date      DateTime
   time      String   @default("00:00")
   guests    Int
-  status    String   @default("Pending")
+  status    String   @default()
   createdAt DateTime @default(now())
 }
 
-
+  
 model Review {
   id        Int      @id @default(autoincrement())
   name      String
